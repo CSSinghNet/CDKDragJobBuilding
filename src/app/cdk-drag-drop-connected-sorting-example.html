@@ -9,25 +9,16 @@
 >
   <div class="d-flex fd-column gap-10" cdkDropListGroup>
     <div class="example-box border-new-job" *ngFor="let job of jobs" cdkDrag>
-      <span
-        *ngIf="!job.isDummy"
-        class="
+      <span class="
           example-box-title
           mb-10
           d-flex
           align-center
           gap-10
           justify-space-between
-        "
-        >{{job.jobName}}
-        <mat-icon (click)="onDeleteJob(job.jobId)"
-          *ngIf="job.jobId>0"
-          aria-hidden="false"
-          aria-label="Example home icon"
-          fontIcon="delete"
-          >Name</mat-icon
-        >
-      </span>
+        "> <mat-icon (click)="onDeleteJob(job.jobId)" *ngIf="job.jobId>0" aria-hidden="false"
+          aria-label="Example home icon" fontIcon="delete">Name</mat-icon><span *ngIf="!job.isDummy">
+          {{job.jobName}}</span></span>
       <div
         cdkDropList
         #todoList="cdkDropList"

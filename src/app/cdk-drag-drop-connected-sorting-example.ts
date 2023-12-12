@@ -254,10 +254,27 @@ export class CdkDragDropConnectedSortingExample {
     return true;
   }
   onDeleteJob(jobId: number) {
-    // Find the job with the specified jobId
-    const jobToDelete = this.jobs.find((job) => job.jobId === jobId);
 
-    // Check if the job to delete exists
+// new code
+
+// Find the index of the job in the array based on job ID
+const indexToDelete = this.jobs.findIndex(job => job.positions.length === 0);
+
+// 1. Check if the "positions" array in the job has any data.
+if (indexToDelete !== -1) {
+  // 2. If the "positions" array is empty, delete the job from the array based on its job ID.
+  console.log(`Deleting job with ID ${this.jobs[indexToDelete].jobId}`);
+  this.jobs.splice(indexToDelete, 1);
+} else {
+  // 3. If the "positions" array has data, find the minimum position ID and set the job ID to -1.
+  const jobData = this.jobs.find(job => job.positions.length > 0);
+  if (jobData) {
+    const minPositionId = Math.min(...jobData.positions.map(position => position.positionId));
+    jobData.jobId = -1;
+
+     // Find the job with the specified jobId
+     const jobToDelete = this.jobs.find((job) => job.jobId === -1);
+ //  Check if the job to delete exists
     if (jobToDelete) {
       // Find or create the job with jobId 0
       const jobWithId0 = this.jobs.find((job) => job.jobId === 0) || {
@@ -272,7 +289,7 @@ export class CdkDragDropConnectedSortingExample {
       jobWithId0.positions.push(...jobToDelete.positions);
 
       // Remove the job with the specified jobId
-      this.jobs = this.jobs.filter((job) => job.jobId !== jobId);
+      this.jobs = this.jobs.filter((job) => job.jobId !==-1);
 
       // Log the updated jobs array
       console.log(this.jobs);
@@ -280,6 +297,41 @@ export class CdkDragDropConnectedSortingExample {
       // Handle the case where no job with the specified jobId is found
       console.log(`Job with jobId ${jobId} not found`);
     }
+
+    console.log(`Setting job ID to -1. Minimum position ID: ${minPositionId}`);
+  }
+}
+
+// Now, jobsArray has been modified based on the conditions.
+console.log('Updated Jobs Array:', this.jobs);
+
+// End
+
+
+
+    // // Check if the job to delete exists
+    // if (jobToDelete) {
+    //   // Find or create the job with jobId 0
+    //   const jobWithId0 = this.jobs.find((job) => job.jobId === 0) || {
+    //     jobId: 0,
+    //     jobName: 'Free Positions',
+    //     isDummy: false,
+    //     isPosChanged: false,
+    //     positions: [],
+    //   };
+
+    //   // Move positions from the job to delete to the job with jobId 0
+    //   jobWithId0.positions.push(...jobToDelete.positions);
+
+    //   // Remove the job with the specified jobId
+    //   this.jobs = this.jobs.filter((job) => job.jobId !== jobId);
+
+    //   // Log the updated jobs array
+    //   console.log(this.jobs);
+    // } else {
+    //   // Handle the case where no job with the specified jobId is found
+    //   console.log(`Job with jobId ${jobId} not found`);
+    // }
   }
   isValidMove(arr: any, currentIndex: number, targetIndex: number) {
     // Extract types and additional information from the current and target positions
