@@ -143,7 +143,6 @@ export class CdkDragDropConnectedSortingExample {
         this.indicesWithNonEmptyPaketInfo = this.getIndexValue(
           event.container.data
         );
-
         const isValid = this.isValidMove(
           event.container.data,
           event.previousIndex,
@@ -163,35 +162,39 @@ export class CdkDragDropConnectedSortingExample {
         }
       }
     } else {
-      console.log(event.previousIndex);
-      console.log(event.currentIndex);
+      // console.log(event.previousIndex);
+      // console.log(event.currentIndex);
       // const isValid = this.isValidJobMove(
       //   event.previousContainer.data,
       //   event.previousIndex,
       //   event.currentIndex,
       //   event.item.data
       // );
-      if (event.item.data.type == 'pkt') {
-        for (let i = 0; i <= 2; i++) {
-          // console.log('i am here', event.previousIndex, event.currentIndex);
 
+      if (event.item.data.type == 'pkt') {
+       
+        console.log(event.container.data);
+        for (let i = 0; i <= 2; i++) {
+         
           transferArrayItem(
             event.previousContainer.data,
             event.container.data,
             event.previousIndex,
             event.currentIndex
           );
-
+ 
           event.container.data.sort((a, b) =>
-            a.type === 'pkt' ? -1 : b.type === 'pkt' ? 1 : 0
+            a.positionId-b.positionId
           );
 
-          // if (isValid) {
-          //   console.log('move');
-          // } else {
-          //   console.log('not move');
-          // }
+        
         }
+        // const sortByPositionId = (a:any, b:any) => a.positionId - b.positionId;
+
+        // const sort = [...event.container.data].sort(sortByPositionId);
+        // event.container.data=sort;
+    
+    console.log(event.container.data);
       } else {
         const isValid = this.isValidJobMove(
           event.container.data,
@@ -199,14 +202,14 @@ export class CdkDragDropConnectedSortingExample {
           event.currentIndex,
           event.item.data
         );
-        // if (isValid) {
+        if (isValid) {
         transferArrayItem(
           event.previousContainer.data,
           event.container.data,
           event.previousIndex,
           event.currentIndex
         );
-        // }
+        }
       }
     }
     // console.log('All Jobs', this.jobs);
@@ -272,11 +275,11 @@ if (indexToDelete !== -1) {
     const minPositionId = Math.min(...jobData.positions.map(position => position.positionId));
     jobData.jobId = -1;
 
-     // Find the job with the specified jobId
+//      // Find the job with the specified jobId
      const jobToDelete = this.jobs.find((job) => job.jobId === -1);
- //  Check if the job to delete exists
+//  //  Check if the job to delete exists
     if (jobToDelete) {
-      // Find or create the job with jobId 0
+//       // Find or create the job with jobId 0
       const jobWithId0 = this.jobs.find((job) => job.jobId === 0) || {
         jobId: 0,
         jobName: 'Free Positions',
@@ -285,11 +288,11 @@ if (indexToDelete !== -1) {
         positions: [],
       };
 
-      // Move positions from the job to delete to the job with jobId 0
+//       // Move positions from the job to delete to the job with jobId 0
       jobWithId0.positions.push(...jobToDelete.positions);
 
-      // Remove the job with the specified jobId
-      this.jobs = this.jobs.filter((job) => job.jobId !==-1);
+//       // Remove the job with the specified jobId
+      this.jobs = this.jobs.filter((job) => job.jobId !==jobId);
 
       // Log the updated jobs array
       console.log(this.jobs);
@@ -333,6 +336,7 @@ console.log('Updated Jobs Array:', this.jobs);
     //   console.log(`Job with jobId ${jobId} not found`);
     // }
   }
+
   isValidMove(arr: any, currentIndex: number, targetIndex: number) {
     // Extract types and additional information from the current and target positions
     const currentType = arr[currentIndex].type;
@@ -463,26 +467,100 @@ console.log('Updated Jobs Array:', this.jobs);
     currentIndex: number,
     item: any
   ): boolean {
-    // Check if the move is valid based on some conditions
-    // Get indices of 'pktpos' elements
-    const pktposIndices = this.getIndices(arr, 'pktpos');
-    console.log('Indices of type pktpos:', pktposIndices);
 
-    // Get indices of 'pkt' elements
-    const pktIndices = this.getIndices(arr, 'pkt');
-    console.log('Indices of type pkt:', pktIndices);
-
-    // Example condition: Check if the move is valid if the item type is 'pos' and there is at least one 'pkt'
-    if (item.type === 'pos') {
-      console.log('Valid move for pktpos with at least one pkt.');
+    // condition: Check if the move is valid if the array is empty and the item type is not 'pktpos'
+    if (arr.length === 0 && item.type !== 'pktpos') {
       return true;
-    } else {
-      // Add more conditions as needed
-      // If no condition is met, consider the move invalid
+    }
+    // condition: Check if the move is invalid if the array is empty and the item type is 'pktpos'
+  if(arr.length===0 && item.type ==='pktpos'){
+    this.showInvalidMoveAlert();
+      return false;
+  }
+    const movedItemType = item.type;
+    let targetIndex = currentIndex - 1;
+    targetIndex = targetIndex === -1 ? 0 : targetIndex;
+    const targetType = arr[targetIndex].type;
+    const targetParentPaketId = arr[targetIndex].parentPaketId;
+  
+    // console.log("array", arr);
+    // console.log("targetIndex", targetIndex);
+    // console.log("targetType", targetType);
+    // console.log("currentIndex", currentIndex);
+  
+    // Check conditions for invalid moves
+  
+    // Condition: Moving a 'pos' to a forward 'pkt' position is not allowed
+    if (targetIndex > currentIndex && targetType === 'pkt' && movedItemType === 'pos') {
       this.showInvalidMoveAlert();
       return false;
     }
+  
+    // Condition: Moving a 'pos' to a backward 'pkt' position is allowed
+    if (targetIndex < currentIndex && targetType === 'pkt' && movedItemType === 'pos') {
+      this.showInvalidMoveAlert();
+      return false;
+    }
+  
+    // Condition 1: Moving backward into a 'pkt' position or 'pktpos'
+    if ((currentIndex > targetIndex && movedItemType === 'pos' && targetType === 'pkt') || targetType === 'pktpos') {
+      // Get the last index of the target type with the same parent paket ID
+      const lastIndex = this.findLastElementIndex(arr, targetType, targetParentPaketId);
+  
+      // Allow the move only if it's the last index and types match
+      if (lastIndex === targetIndex && movedItemType !== targetType) {
+        return true;
+      }
+    }
+  
+    // Condition 2: Moving backward into a 'pktpos' position from a 'pktpos' is not allowed
+    if (currentIndex > targetIndex && movedItemType === 'pktpos' && targetType === 'pos') {
+      this.showInvalidMoveAlert();
+      return false;
+    }
+  
+    // Condition 3: Moving forward into a 'pkt' position or from 'pktpos' to 'pos'
+    if ((currentIndex < targetIndex && movedItemType === 'pkt') || (movedItemType === 'pktpos' && targetType === 'pos')) {
+      // Check if types match, allowing the move; otherwise, show an alert
+      if (movedItemType === 'pkt' && targetType === 'pos') {
+        return true;
+      } else {
+        this.showInvalidMoveAlert();
+        return false;
+      }
+    } else {
+  
+      if(targetType==='pkt' && targetIndex===0){
+        return true;
+      }
+      // Allow the move if types are the same
+      if(currentIndex > targetIndex || movedItemType !== targetType){
+        this.showInvalidMoveAlert();
+        return false;
+      }
+
+      if (movedItemType === targetType) {
+        return true;
+      }
+  
+    
+      // Additional condition: Moving a 'pos' backward into a 'pktpos' position is allowed only at the top or bottom
+      if (currentIndex > targetIndex && targetType === 'pktpos') {
+        if (movedItemType === 'pos') {
+          // Check if it is at the bottom or top
+          if (currentIndex === 0 || currentIndex === arr.length) {
+            return true;
+          } else {
+            this.showInvalidMoveAlert();
+            return false;
+          }
+        }
+      }
+      // If none of the invalid conditions are met, the move is valid
+      return true;
+    }
   }
+  
 
   // Function to get indices of elements with a specific type
   getIndices(arr: any[], targetType: string): number[] {
