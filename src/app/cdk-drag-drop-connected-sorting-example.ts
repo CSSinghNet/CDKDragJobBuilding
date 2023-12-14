@@ -258,94 +258,41 @@ export class CdkDragDropConnectedSortingExample {
   }
 
   onDeleteJob(jobId: number) {
-
-// Update jobId to -1 for jobs with non-empty positions
-this.jobs.forEach(job => {
-  if (job.positions.length > 0) {
-    if(job.jobId===jobId){
-      job.jobId = -1;
-    }
+    // Update jobId to -1 for jobs with non-empty positions
+    this.jobs.forEach(job => {
+      if (job.positions.length > 0) {
+        if (job.jobId === jobId) {
+          job.jobId = -1;
+        } else {
+          const jobToDelete = this.jobs.find((j) => j.jobId === jobId);
+  
+          if (jobToDelete) {
+            // Find or create the job with jobId 0
+            const jobWithId0 = this.jobs.find((j) => j.jobId === 0) || {
+              jobId: 0,
+              jobName: 'Free Positions',
+              isDummy: false,
+              isPosChanged: false,
+              positions: [],
+            };
+  
+            // Move positions from the job to delete to the job with jobId 0
+            jobWithId0.positions.push(...jobToDelete.positions);
+  
+            // Remove the job with the specified jobId
+            this.jobs = this.jobs.filter((j) => j.jobId !== jobId);
+  
+            // Log the updated jobs array
+            console.log(this.jobs);
+          } else {
+            // Handle the case where no job with the specified jobId is found
+            console.log(`Job with jobId ${jobId} not found`);
+          }
+        }
+      }
+    });
   }
-});
-
-// // new code
-
-// // Find the index of the job in the array based on job ID
-// const indexToDelete = this.jobs.findIndex(job => job.positions.length === 0);
-
-// // 1. Check if the "positions" array in the job has any data.
-// if (indexToDelete !== -1) {
-//   // 2. If the "positions" array is empty, delete the job from the array based on its job ID.
-//   console.log(`Deleting job with ID ${this.jobs[indexToDelete].jobId}`);
-//   this.jobs.splice(indexToDelete, 1);
-// } else {
-//   // 3. If the "positions" array has data, find the minimum position ID and set the job ID to -1.
-//   const jobData = this.jobs.find(job => job.positions.length > 0);
-//   if (jobData) {
-//     const minPositionId = Math.min(...jobData.positions.map(position => position.positionId));
-//     jobData.jobId = -1;
-
-// //      // Find the job with the specified jobId
-//      const jobToDelete = this.jobs.find((job) => job.jobId === -1);
-// //  //  Check if the job to delete exists
-//     if (jobToDelete) {
-// //       // Find or create the job with jobId 0
-//       const jobWithId0 = this.jobs.find((job) => job.jobId === 0) || {
-//         jobId: 0,
-//         jobName: 'Free Positions',
-//         isDummy: false,
-//         isPosChanged: false,
-//         positions: [],
-//       };
-
-// //       // Move positions from the job to delete to the job with jobId 0
-//       jobWithId0.positions.push(...jobToDelete.positions);
-
-// //       // Remove the job with the specified jobId
-//       this.jobs = this.jobs.filter((job) => job.jobId !==jobId);
-
-//       // Log the updated jobs array
-//       console.log(this.jobs);
-//     } else {
-//       // Handle the case where no job with the specified jobId is found
-//       console.log(`Job with jobId ${jobId} not found`);
-//     }
-
-//     console.log(`Setting job ID to -1. Minimum position ID: ${minPositionId}`);
-//   }
-// }
-
-// // Now, jobsArray has been modified based on the conditions.
-// console.log('Updated Jobs Array:', this.jobs);
-
-// End
-
-
-
-    // // Check if the job to delete exists
-    // if (jobToDelete) {
-    //   // Find or create the job with jobId 0
-    //   const jobWithId0 = this.jobs.find((job) => job.jobId === 0) || {
-    //     jobId: 0,
-    //     jobName: 'Free Positions',
-    //     isDummy: false,
-    //     isPosChanged: false,
-    //     positions: [],
-    //   };
-
-    //   // Move positions from the job to delete to the job with jobId 0
-    //   jobWithId0.positions.push(...jobToDelete.positions);
-
-    //   // Remove the job with the specified jobId
-    //   this.jobs = this.jobs.filter((job) => job.jobId !== jobId);
-
-    //   // Log the updated jobs array
-    //   console.log(this.jobs);
-    // } else {
-    //   // Handle the case where no job with the specified jobId is found
-    //   console.log(`Job with jobId ${jobId} not found`);
-    // }
-  }
+  
 
   isValidMove(arr: any, currentIndex: number, targetIndex: number) {
     // Extract types and additional information from the current and target positions
@@ -493,13 +440,6 @@ this.jobs.forEach(job => {
     const targetType = arr[targetIndex].type;
     const targetParentPaketId = arr[targetIndex].parentPaketId;
   
-    // console.log("array", arr);
-    // console.log("targetIndex", targetIndex);
-    // console.log("targetType", targetType);
-    // console.log("currentIndex", currentIndex);
-  
-    // Check conditions for invalid moves
-  
     // Condition: Moving a 'pos' to a forward 'pkt' position is not allowed
     if (targetIndex > currentIndex && targetType === 'pkt' && movedItemType === 'pos') {
       this.showInvalidMoveAlert();
@@ -577,10 +517,6 @@ this.jobs.forEach(job => {
   
 
   // Function to get indices of elements with a specific type
-  
-  
-  
-  
   
   getIndices(arr: any[], targetType: string): number[] {
     const indices: number[] = [];

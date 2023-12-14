@@ -3,7 +3,7 @@
 <mat-slide-toggle (change)="onChange($event)">Dummy Job</mat-slide-toggle>
   <mat-form-field appearance="fill">
     <mat-label>Job Name</mat-label>
-    <input matInput [(ngModel)]="data.name" />
+    <input matInput [(ngModel)]="data.name" [disabled]="data.isDummy"/>
   </mat-form-field>
 </div>
 <div mat-dialog-actions>
