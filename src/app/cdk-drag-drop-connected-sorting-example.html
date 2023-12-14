@@ -15,10 +15,12 @@
           d-flex
           align-center
           gap-10
-          justify-space-between
         "> <mat-icon (click)="onDeleteJob(job.jobId)" *ngIf="job.jobId>0" aria-hidden="false"
-          aria-label="Example home icon" fontIcon="delete">Name</mat-icon><span *ngIf="!job.isDummy">
-          {{job.jobName}}</span></span>
+          aria-label="Example home icon" fontIcon="delete">Name</mat-icon>
+          <span *ngIf="!job.isDummy">
+          {{job.jobName}}
+        </span>
+        </span>
       <div
         cdkDropList
         #todoList="cdkDropList"
